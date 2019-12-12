@@ -1,15 +1,17 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net"
 	"os"
 	"regexp"
 	"sort"
+	"time"
 )
 
-func dnsLookup(host string) ([]string, error) {
+func dnsQuery(host string) ([]string, error) {
 	// Sets up the regex needed to validate an IPv4 IP address.
 	numBlock := "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])"
 	regEx := regexp.MustCompile(numBlock + "\\." + numBlock + "\\." + numBlock + "\\." + numBlock)
@@ -22,7 +24,7 @@ func dnsLookup(host string) ([]string, error) {
 
 	// Returns an error if unable to resolve DNS.
 	if err != nil {
-		fmt.Println("[+] DNS Resolution Error", err)
+		fmt.Println("[-] DNS Resolution Error", err)
 		return nil, errors.New("unable to resolve DNS query")
 	}
 
@@ -39,32 +41,77 @@ func dnsLookup(host string) ([]string, error) {
 	return ipList, nil
 }
 
+func generateOutput(now time.Time, outFormat string, hostNameArg string, dnsQueryResult []string) string {
+	// Create an empty string, we can concatenate into, later.
+	outString := ""
+
+	// Check to see if the desired output format is json
+	if outFormat == "json" {
+
+		// Create an empty map, ready to add data
+		jsonData := make(map[string]interface{})
+
+		// Add data to json map.
+		jsonData["scriptExecution"] = now.Format(time.RFC3339)
+		jsonData["resolvedIps"] = dnsQueryResult
+		jsonData["queriedHostname"] = hostNameArg
+
+		// Marshall the JSON data so we can convert it to string
+		outData, err := json.Marshal(jsonData)
+		if err != nil {
+			fmt.Println(err.Error())
+			return ""
+		}
+
+		// Convert the marshalled json data to string, and return it
+		outString += string(outData)
+		return outString
+	}
+
+	// Check to see if the desired output format is stdout
+	if outFormat == "stdout" {
+		outString += "[+] Domain: " + hostNameArg + "\n"
+		outString += "[+] Run Time: " + now.Format(time.RFC3339) + "\n"
+
+		ctr := 0
+		for _, ip := range dnsQueryResult {
+			ctr ++
+			outString += fmt.Sprintf("%v", ctr)+". "+ip+"\n"
+		}
+		return outString
+	}
+
+	// Didnt receive a valid outFormat, so return this string.
+	return "No Output Generated"
+}
+
 func main() {
+	// Gets the current script execution time.
+	now := time.Now()
+
 	// Parses input args from command line arguments, ignores program.
 	cliArgs := os.Args[1:]
 
-	// Makes sure we get at least 1 item, and only 1 item, as an argument.
-	if len(cliArgs) != 1 {
-		fmt.Println("[-] Invalid Command Line Arguments. Usage: ./go-dns-client google.com")
+	// Makes sure we get at least 2 items, and only 2 items, as an argument.
+	if len(cliArgs) != 2 {
+		fmt.Println("[-] Invalid Command Line Arguments. Usage: ./go-dns-client google.com json")
 		os.Exit(1)
 	}
 
 	// Parses the hostname as 0th element from cliArgs
 	hostNameArg := cliArgs[0]
-	fmt.Println("[+] Starting DNS Lookup for domain:", hostNameArg)
+	// sets the desired output format. Valid formats: stdout or json
+	outputArg := cliArgs[1]
 
 	// Queries the hostname from CLI args from DNS. Exit if returns error.
-	dnsQueryResult, err := dnsLookup(hostNameArg)
-
-	// Exits the program with non-zero-status exit code if we cant resolve the hostname via DNS.
+	dnsQueryResult, err := dnsQuery(hostNameArg)
 	if err != nil {
 		os.Exit(1)
 	}
 
-	// Loop through query results, and parse and print valid ipv4 addresses.
-	for _, ip := range dnsQueryResult {
-		fmt.Println("[+] Query result:", ip)
-	}
+	// verify input for output format is a valid type
+	output := generateOutput(now, outputArg, hostNameArg, dnsQueryResult)
 
-	fmt.Println("[+] DNS Resolution Complete.")
+	// prints out the return value from generateOutput()
+	fmt.Println(output)
 }

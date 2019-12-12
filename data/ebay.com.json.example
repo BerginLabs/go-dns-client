@@ -1,0 +1,8 @@
+{
+  "queriedHostname": "ebay.com",
+  "resolvedIps": [
+    "66.135.195.175",
+    "66.135.196.249"
+  ],
+  "scriptExecution": "2019-12-11T19:03:59-08:00"
+}
