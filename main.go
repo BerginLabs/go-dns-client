@@ -24,7 +24,7 @@ func dnsQuery(host string) ([]string, error) {
 
 	// Returns an error if unable to resolve DNS.
 	if err != nil {
-		fmt.Println("[+] DNS Resolution Error", err)
+		fmt.Println("[-] DNS Resolution Error", err)
 		return nil, errors.New("unable to resolve DNS query")
 	}
 

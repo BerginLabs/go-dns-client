@@ -50,3 +50,10 @@ $ ./go-dns-client yahoo.com stdout
 
 $
 ```
+pretty json output to file
+``` 
+$ TARGET="test.com" && \
+  touch data/$TARGET.json && \
+  ./go-dns-client $TARGET json \
+  | jq . > data/$TARGET.json
+```
