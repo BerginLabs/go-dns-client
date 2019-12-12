@@ -15,7 +15,7 @@ $ mkdir $GOPATH
 $ mkdir $GOPATH/src
 ```
 
-### Install dns-client from src.
+### Install go-dns-client from src.
 ```
 $ cd /Users/user/go/src
 $ git commit https://github.com/BerginLabs/go-dns-client.git
