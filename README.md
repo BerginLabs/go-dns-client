@@ -10,9 +10,9 @@ $ brew install go
 ### Configure and prepare Golang
 ```
 $ go env GOPATH
-/Users/user/go
-$ mkdir /Users/user/go
-$ mkdir /Users/user/go/src
+# export GOPATH=/Users/user/go
+$ mkdir $GOPATH
+$ mkdir $GOPATH/src
 ```
 
 ### Install dns-client from src.
@@ -23,15 +23,30 @@ $ cd go-dns-client
 $ go build
 ```
 
-### Test go-dns-client
+### Examples
+output as json
+``` 
+$ ./go-dns-client google.com json | jq .
+{
+  "queriedHostname": "google.com",
+  "resolvedIps": [
+    "172.217.5.14"
+  ],
+  "scriptExecution": "2019-12-11T18:45:47-08:00"
+}
+$
 ```
-$ ./go-dns-client yahoo.com 
-[+] Starting DNS Lookup for domain: yahoo.com
-[+] Query result: 72.30.35.10
-[+] Query result: 72.30.35.9
-[+] Query result: 98.137.246.7
-[+] Query result: 98.137.246.8
-[+] Query result: 98.138.219.231
-[+] Query result: 98.138.219.232
-[+] DNS Resolution Complete.
+output to stdout
+``` 
+& ./go-dns-client yahoo.com stdout
+[+] Domain: yahoo.com
+[+] Run Time: 2019-12-11T18:48:22-08:00
+1. 72.30.35.10
+2. 72.30.35.9
+3. 98.137.246.7
+4. 98.137.246.8
+5. 98.138.219.231
+6. 98.138.219.232
+
+&
 ```
