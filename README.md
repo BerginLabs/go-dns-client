@@ -38,7 +38,7 @@ $
 ```
 output to stdout
 ``` 
-& ./go-dns-client yahoo.com stdout
+$ ./go-dns-client yahoo.com stdout
 [+] Domain: yahoo.com
 [+] Run Time: 2019-12-11T18:48:22-08:00
 1. 72.30.35.10
@@ -48,5 +48,5 @@ output to stdout
 5. 98.138.219.231
 6. 98.138.219.232
 
-&
+$
 ```
